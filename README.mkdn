@@ -1,0 +1,14 @@
+# hipchat-emoticon-browser
+
+This is a simple (lame, ugly, stupid) [Greasemonkey](http://www.greasespot.net/) script
+to provide an in-page browser for [hipchat](https://www.hipchat.com/) emoticons.
+
+This was inspired by https://github.com/henrik/hipchat-emoticons
+but is updated every time you refresh the chatroom
+and also shows any custom icons loaded in your account.
+
+As always: patches welcome.
+
+---
+
+This is not in any way endorsed by or affiliated with [hipchat](hipchat.com).
