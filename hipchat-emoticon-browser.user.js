@@ -7,32 +7,46 @@
 (function(){
 
   var show_emoticons = function(){
+    clearInterval(interval);
     var id = '_local_emoticons',
-      boxstyle = 'width: 175px; height: 50%; position: absolute; left: 2px; bottom: 40px; overflow: scroll; background: #eef;',
-      url_prefix = 'https://dujrsrsgsd3nh.cloudfront.net/img/emoticons/';
+      box_style = 'width: 175px; position: absolute; left: 2px; bottom: 40px; background: #eef; z-index: 9999;',
+      toggle_style = 'height: 1.5em; background: #aab; border-bottom: #778;text-align: center; cursor:pointer;',
+      emoticons_style = 'overflow: auto; padding: 5px 0; display: none;',
+      emoticon_style = 'outline: 1px dotted #ccc; float: left; height: 35px; text-align: center;cursor:pointer; margin: 2px;',
+      toggle = '<div class="_toggle" style="'+ toggle_style +'">Emoticons</div>',
+      emoticons_box = '<div class="_emoticons" style="'+ emoticons_style +'"></div>',
+      sorted_emoticons = emoticons.emoticons.sort(function(a,b){ return a.shortcut.localeCompare(b.shortcut); });
+
     $('#' + id).remove(); // This may or may not already exist.
-    $('body').append($([
-      '<div id="' + id + '" style="' + boxstyle + '">',
+    $('body').append('<div id="' + id + '" style="'+ box_style +'">'+toggle+emoticons_box+'</div>');
 
-        // TODO: sort?
-        // TODO: filter out ones i don't care about
-      emoticons.emoticons
-        .sort(function(a,b){ return a.shortcut.localeCompare(b.shortcut); })
-        .map(function(e){
-          return [
-            '<div onclick="$(\'#message_input\')[0].value += \' \' + $(this).find(\'span\')[0].innerHTML; $(\'#message_input\')[0].focus();"',
-            ' style="outline: 1px dotted #ccc; float: left; height: 50px; text-align: center;">',
-              '<img src="' + url_prefix + e.image + '"><br/>',
-              '<span style="color: #555; font-size: 0.9em;">' + e.shortcut + '</span>',
-            '</div>',
-          ].join('');
-        }).join("\n"),
+    $.each(sorted_emoticons, function(i,e){
+      var emote = '<div class="_emoticon" style="'+emoticon_style+'">' +
+                    '<img src="' + emoticons.path_prefix + '/' + e.image + '"><br/>' +
+                    '<span style="color: #555; font-size: 0.5em;">' + e.shortcut + '</span>' +
+                  '</div>';
+      $('#'+id+' ._emoticons').append(emote);
+    });
+    $('#'+id+' ._emoticons').append('<div style="clear:both;"></div>').height($('body').height()-80);
 
-      '</div>',
-    ].join("\n")));
+    $('body').on('click', '#'+id+' ._emoticon', function(e){
+      var input = $('#message_input');
+      input.focus();
+      input.val(input.val()+' '+$(this).find('span').text());
+    });
+
+    $('body').on('click', '#'+id+' ._toggle', function(){
+      $('#'+id+' ._emoticons').toggle();
+    });
   };
   //show_emoticons();
 
-  // Wait 20 seconds to let the room (and it's emoticons) load.
-  setTimeout(show_emoticons, 20*1000);
+  var interval = setInterval(function(){
+    // Wait for Hipchat to finish loading before trying to get emoticons
+    if($('#loading').css('display') == 'none') {
+      $(document).ready(function(){
+        show_emoticons();
+      });
+    }
+  }, 500);
 })();
