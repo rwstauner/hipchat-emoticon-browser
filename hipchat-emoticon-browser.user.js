@@ -2,7 +2,7 @@
 // @name           hipchat-emoticon-browser
 // @namespace      http://magnificent-tears.com
 // @include        https://*.hipchat.com/chat*
-// @version        3
+// @version        4
 // ==/UserScript==
 
 (function(){
@@ -18,8 +18,8 @@
     clearInterval(eb.interval);
 
     var
-      // Set z-index high to cover the "X" for different tabs.
-      box_style = 'width: 175px; position: absolute; left: 2px; bottom: 40px; background: #eef; z-index: 9999;',
+      // Set z-index between the tab "X" (10) and the change-status text box (100).
+      box_style = 'width: 175px; position: absolute; left: 2px; bottom: 40px; background: #eef; z-index: 50;',
       toggle_style = 'height: 1.5em; background: #aab; border-bottom: #778;text-align: center; cursor:pointer;',
       emoticons_style = 'overflow: auto; padding: 5px 0; display: none;',
       toggle = '<div class="_toggle" style="'+ toggle_style +'">Emoticons</div>',
