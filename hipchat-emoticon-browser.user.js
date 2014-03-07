@@ -3,7 +3,7 @@
 // @namespace      http://magnificent-tears.com
 // @include        https://*.hipchat.com/chat*
 // @updateURL      https://raw.github.com/rwstauner/hipchat-emoticon-browser/master/hipchat-emoticon-browser.user.js
-// @version        5
+// @version        6
 // ==/UserScript==
 
 (function(){
@@ -46,17 +46,19 @@
   };
 
   eb.refresh = function () {
+    // HipChat recently changed the structure of their emoticon objects,
+    // so I'm using the (a || b) style to hopefully work across any transitions.
     var
       container = $('#'+eb.id+' ._emoticons'),
       emoticon_style = 'outline: 1px dotted #ccc; float: left; height: 35px; text-align: center;cursor:pointer; margin: 2px;',
-      sorted_emoticons = emoticons.emoticons.sort(function(a,b){ return a.shortcut.localeCompare(b.shortcut); }),
+      sorted_emoticons = (emoticons.emoticons || config.emoticons).sort(function(a,b){ return a.shortcut.localeCompare(b.shortcut); }),
       innerhtml = [];
 
     $.each(sorted_emoticons, function(i,e){
       var emote = [
         // Put shortcut text in title like the real ones (in case our font is too small).
         '<div class="_emoticon" style="' + emoticon_style + '" title="' + e.shortcut + '">',
-        '<img src="' + emoticons.path_prefix + '/' + e.image + '"><br/>',
+        '<img src="' + emoticons.path_prefix + '/' + (e.image || e.file) + '"><br/>',
         // Shrink font so the items aren't too terribly large.
         '<span style="color: #555; font-size: 0.5em;">' + e.shortcut + '</span>',
         '</div>',
