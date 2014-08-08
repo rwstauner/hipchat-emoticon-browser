@@ -3,6 +3,8 @@
 This is a simple (lame, ugly, stupid) [Greasemonkey](http://www.greasespot.net/) script
 to provide an in-page browser for [hipchat](https://www.hipchat.com/) emoticons.
 
+To use with Chrome try [Tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo).
+
 This was inspired by https://github.com/henrik/hipchat-emoticons
 but is updated every time you refresh the chatroom
 and also shows any custom icons loaded in your account.
