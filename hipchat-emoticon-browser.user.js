@@ -3,7 +3,7 @@
 // @namespace      http://magnificent-tears.com
 // @include        https://*.hipchat.com/chat*
 // @updateURL      https://raw.github.com/rwstauner/hipchat-emoticon-browser/master/hipchat-emoticon-browser.user.js
-// @version        6
+// @version        7
 // ==/UserScript==
 
 (function(){
@@ -46,16 +46,35 @@
     });
   };
 
+  eb.sorted_emoticons = function() {
+    // HipChat has changed the structure of their emoticon objects a few times.
+    var icons = (emoticons.emoticons || config.emoticons);
+
+    // If it's not an array, assume it's an object and turn it into an array.
+    if( !icons.sort ){
+      icons = (function(obj){
+        var k, a = [];
+        for(k in obj){
+          if( obj.hasOwnProperty(k) ){
+            a.push(obj[k]);
+          }
+        }
+        return a;
+      }(icons));
+    }
+
+    return icons.sort(function(a,b){
+      return a.shortcut.localeCompare(b.shortcut);
+    });
+  };
+
   eb.refresh = function () {
-    // HipChat recently changed the structure of their emoticon objects,
-    // so I'm using the (a || b) style to hopefully work across any transitions.
     var
       container = $('#'+eb.id+' ._emoticons'),
       emoticon_style = 'outline: 1px dotted #ccc; float: left; height: 35px; text-align: center;cursor:pointer; margin: 2px;',
-      sorted_emoticons = (emoticons.emoticons || config.emoticons).sort(function(a,b){ return a.shortcut.localeCompare(b.shortcut); }),
       innerhtml = [];
 
-    $.each(sorted_emoticons, function(i,e){
+    $.each(eb.sorted_emoticons(), function(i,e){
       var emote = [
         // Put shortcut text in title like the real ones (in case our font is too small).
         '<div class="_emoticon" style="' + emoticon_style + '" title="' + e.shortcut + '">',
