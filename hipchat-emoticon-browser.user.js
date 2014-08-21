@@ -7,6 +7,7 @@
 // ==/UserScript==
 
 (function(){
+  /*global $, document, config, emoticons*/
 
   // HipChat includes jQuery 1.8.3 and we're not shy about using it.
 
@@ -30,7 +31,7 @@
     $('#' + id).remove(); // This may or may not already exist.
     $('body').append('<div id="' + id + '" style="'+ box_style +'">'+toggle+emoticons_box+'</div>');
 
-    $('body').on('click', '#'+id+' ._emoticon', function(e){
+    $('body').on('click', '#'+id+' ._emoticon', function(){
       var input = $('#message_input');
       input.focus();
       input.val(input.val()+' '+$(this).find('span').text());
@@ -38,7 +39,7 @@
 
     $('body').on('click', '#'+id+' ._toggle', function(){
       // Refresh emoticons before opening.
-      if( $('#'+id+' ._emoticons').css('display') == 'none' ){
+      if( $('#'+id+' ._emoticons').css('display') === 'none' ){
         eb.refresh();
       }
       $('#'+id+' ._emoticons').toggle();
@@ -73,11 +74,11 @@
 
   eb.interval = setInterval(function(){
     // Wait for Hipchat to finish loading before trying to get emoticons
-    if($('#loading').css('display') == 'none') {
+    if($('#loading').css('display') === 'none') {
       $(document).ready(function(){
         eb.prepare();
       });
     }
   }, 500);
 
-})();
+}());
