@@ -74,7 +74,7 @@
       emoticon_style = 'outline: 1px dotted #ccc; float: left; height: 35px; text-align: center;cursor:pointer; margin: 2px;',
       innerhtml = [];
 
-    $.each(eb.sorted_emoticons(), function(i,e){
+    $.each(eb.sorted_emoticons(), function(i, e){ /*jslint unparam: true */
       var emote = [
         // Put shortcut text in title like the real ones (in case our font is too small).
         '<div class="_emoticon" style="' + emoticon_style + '" title="' + e.shortcut + '">',
