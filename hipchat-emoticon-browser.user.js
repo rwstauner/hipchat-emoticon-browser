@@ -3,7 +3,7 @@
 // @namespace      http://magnificent-tears.com
 // @include        https://*.hipchat.com/chat*
 // @updateURL      https://raw.github.com/rwstauner/hipchat-emoticon-browser/master/hipchat-emoticon-browser.user.js
-// @version        7
+// @version        8
 // ==/UserScript==
 
 (function(){
@@ -62,6 +62,16 @@
         return a;
       }(icons));
     }
+
+    $.each(icons, function(i, icon){ /*jslint unparam: true */
+
+      // The "slant" smiley is missing the trailing backslash in the `shortcut`
+      // attribute (though it is present in `regex`).
+      if( icon.shortcut === ":" && icon.file === "slant.png" ){
+        icon.shortcut = ":\\";
+      }
+
+    });
 
     return icons.sort(function(a,b){
       return a.shortcut.localeCompare(b.shortcut);
