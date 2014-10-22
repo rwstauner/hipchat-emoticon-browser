@@ -14,3 +14,7 @@ As always: patches welcome.
 ---
 
 This is not in any way endorsed by or affiliated with [hipchat](hipchat.com).
+
+HipChat now has their own emoticon browser
+(which includes custom ones if you're logged in):
+https://www.hipchat.com/emoticons
