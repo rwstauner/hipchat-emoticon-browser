@@ -3,7 +3,7 @@
 // @namespace      http://magnificent-tears.com
 // @include        https://*.hipchat.com/chat*
 // @updateURL      https://raw.github.com/rwstauner/hipchat-emoticon-browser/master/hipchat-emoticon-browser.user.js
-// @version        8
+// @version        9
 // ==/UserScript==
 
 (function(){
@@ -88,7 +88,8 @@
       var emote = [
         // Put shortcut text in title like the real ones (in case our font is too small).
         '<div class="_emoticon" style="' + emoticon_style + '" title="' + e.shortcut + '">',
-        '<img src="' + emoticons.path_prefix + '/' + (e.image || e.file) + '"><br/>',
+        // Set the height and width so retina images don't get huge.
+        '<img src="' + emoticons.path_prefix + '/' + (e.image || e.file) + '" height="' + e.height + '" width="' + e.width + '"><br/>',
         // Shrink font so the items aren't too terribly large.
         '<span style="color: #555; font-size: 0.5em;">' + e.shortcut + '</span>',
         '</div>',
@@ -99,6 +100,10 @@
     innerhtml.push('<div style="clear:both;"></div>');
     container.empty();
     container.append(innerhtml.join("\n")).height($('body').height()-80);
+
+    // Hipchat's replaceImageWithRetina method requires the images to have a name=emoticon attribute
+    container.find($('img')).attr('name', 'emoticon');
+    chat.replaceImageWithRetina(container);
   };
 
   eb.interval = setInterval(function(){
