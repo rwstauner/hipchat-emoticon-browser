@@ -100,7 +100,7 @@
     innerhtml.push('<div style="clear:both;"></div>');
     container.empty();
     container.append(innerhtml.join("\n")).height($('body').height()-80);
-    chat.replaceImageWithRetina(container);
+    try { chat.replaceImageWithRetina(container) } catch(e) { };
   };
 
   eb.interval = setInterval(function(){
