@@ -100,7 +100,13 @@
     innerhtml.push('<div style="clear:both;"></div>');
     container.empty();
     container.append(innerhtml.join("\n")).height($('body').height()-80);
-    try { chat.replaceImageWithRetina(container) } catch(e) { };
+
+    // Use HipChat's own "upgrade to Retina" function if it's accessible.
+    try {
+      /*global chat*/
+      chat.replaceImageWithRetina(container);
+    } catch(ignore) { }
+
   };
 
   eb.interval = setInterval(function(){
