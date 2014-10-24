@@ -3,7 +3,7 @@
 // @namespace      http://magnificent-tears.com
 // @include        https://*.hipchat.com/chat*
 // @updateURL      https://raw.github.com/rwstauner/hipchat-emoticon-browser/master/hipchat-emoticon-browser.user.js
-// @version        9
+// @version        10
 // ==/UserScript==
 
 (function(){
@@ -13,6 +13,7 @@
 
   var eb = {
       interval: null,
+      iconString: '',
       id: '_local_emoticon_browser',
       contentClass: '_emoticons',
       itemClass:    '_emoticon'
@@ -117,12 +118,29 @@
     });
   };
 
+  eb.stringify_icons = function(icons) {
+    // We need object attributes sorted so that strings are comparable.
+    return $.map(icons, function(icon) { return stringifyAttributes(icon); }).join("\n");
+  };
+
   eb.refresh = function () {
     var
-      container = $('#'+eb.id+' ._emoticons'),
+      container,
+      icons = eb.sorted_emoticons(),
+      iconString = eb.stringify_icons(icons),
       innerhtml = [];
 
-    $.each(eb.sorted_emoticons(), function(i, e){ /*jslint unparam: true */
+    // If the icons haven't changed we don't need to do anything.
+    if( iconString === eb.iconString ){
+      return;
+    }
+
+    // Save it so we can check it next time.
+    eb.iconString = iconString;
+
+    container = $(eb.contentSelector);
+
+    $.each(icons, function(i, e){ /*jslint unparam: true */
       var emote = tag('div',
         {
           "class": eb.itemClass,
