@@ -14,22 +14,55 @@
   var eb = {
     "interval": null,
     "id": '_local_emoticon_browser',
-  };
+    },
+
+    // Helper functions.
+
+    _keys = function (obj) {
+      var k, list = [];
+      for(k in obj){ if(obj.hasOwnProperty(k)){ list.push(k); } }
+      return list.sort();
+    },
+
+    _slice = [].slice,
+
+    stringifyAttributes = function (att) {
+      return $.map( _keys(att), function(key){
+        return key + '="' + att[key] + '"';
+      }).join(' ');
+    },
+
+    tag = function (name, att) {
+      var html = ['<' + name], content = _slice.call(arguments, 2);
+      if(att){ html.push(stringifyAttributes(att)); }
+      html.push(content.length ? ('>' + content.join("\n") + "\n</" + name + '>') : '/>');
+      return html.join(' ');
+    };
 
   eb.prepare = function(){
     clearInterval(eb.interval);
 
-    var
-      // Set z-index between the tab "X" (10) and the change-status text box (100).
-      box_style = 'width: 175px; position: absolute; left: 2px; bottom: 40px; background: #eef; z-index: 50;',
-      toggle_style = 'height: 1.5em; background: #aab; border-bottom: #778;text-align: center; cursor:pointer;',
-      emoticons_style = 'overflow: auto; padding: 5px 0; display: none;',
-      toggle = '<div class="_toggle" style="'+ toggle_style +'">Emoticons</div>',
-      emoticons_box = '<div class="_emoticons" style="'+ emoticons_style +'"></div>',
+    var toggleClass = '_toggle',
       id = eb.id;
 
     $('#' + id).remove(); // This may or may not already exist.
-    $('body').append('<div id="' + id + '" style="'+ box_style +'">'+toggle+emoticons_box+'</div>');
+    $('body').append(
+      tag('div',
+        {
+          id: eb.id,
+          // Set z-index between the tab "X" (10) and the change-status text box (100).
+          style: 'width: 175px; position: absolute; left: 2px; bottom: 40px; background: #eef; z-index: 50;'
+        },
+        tag('div', {
+          "class": toggleClass,
+          style: 'height: 1.5em; background: #aab; border-bottom: #778;text-align: center; cursor:pointer;'
+        }, 'Emoticons'),
+        tag('div', {
+          "class": '_emoticons',
+          style: 'overflow: auto; padding: 5px 0; display: none;'
+        }, '')
+      )
+    );
 
     $('body').on('click', '#'+id+' ._emoticon', function(){
       var input = $('#message_input');
@@ -81,19 +114,30 @@
   eb.refresh = function () {
     var
       container = $('#'+eb.id+' ._emoticons'),
-      emoticon_style = 'outline: 1px dotted #ccc; float: left; height: 35px; text-align: center;cursor:pointer; margin: 2px;',
       innerhtml = [];
 
     $.each(eb.sorted_emoticons(), function(i, e){ /*jslint unparam: true */
-      var emote = [
-        // Put shortcut text in title like the real ones (in case our font is too small).
-        '<div class="_emoticon" style="' + emoticon_style + '" title="' + e.shortcut + '">',
-        // replaceImageWithRetina requires the name="emoticon" attribute. Set the height and width so retina images don't get huge.
-        '<img name="emoticon" src="' + emoticons.path_prefix + '/' + (e.image || e.file) + '" height="' + e.height + '" width="' + e.width + '"><br/>',
-        // Shrink font so the items aren't too terribly large.
-        '<span style="color: #555; font-size: 0.5em;">' + e.shortcut + '</span>',
-        '</div>',
-      ].join("\n");
+      var emote = tag('div',
+        {
+          "class": '_emoticon',
+          style: 'outline: 1px dotted #ccc; float: left; height: 40px; text-align: center; cursor:pointer; margin: 2px;',
+          // Put shortcut text in title like the real ones (in case our font is too small).
+          title: e.shortcut
+        },
+        tag('img', {
+          // replaceImageWithRetina requires the name="emoticon" attribute.
+          name: 'emoticon',
+          src: (emoticons.path_prefix + '/' + (e.image || e.file)),
+          // Set the height and width so retina images don't get huge.
+          height: e.height,
+          width:  e.width
+        }),
+        tag('br'),
+        tag('span', {
+          // Shrink font so the items aren't too terribly large.
+          style: "color: #555; font-size: 0.5em;"
+        }, e.shortcut)
+      );
       innerhtml.push(emote);
     });
 
