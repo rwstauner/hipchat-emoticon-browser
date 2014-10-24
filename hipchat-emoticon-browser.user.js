@@ -12,8 +12,10 @@
   // HipChat includes jQuery 1.8.3 and we're not shy about using it.
 
   var eb = {
-    "interval": null,
-    "id": '_local_emoticon_browser',
+      interval: null,
+      id: '_local_emoticon_browser',
+      contentClass: '_emoticons',
+      itemClass:    '_emoticon'
     },
 
     // Helper functions.
@@ -39,6 +41,8 @@
       return html.join(' ');
     };
 
+  eb.contentSelector = '#' + eb.id + ' .' + eb.contentClass;
+
   eb.prepare = function(){
     clearInterval(eb.interval);
 
@@ -58,24 +62,26 @@
           style: 'height: 1.5em; background: #aab; border-bottom: #778;text-align: center; cursor:pointer;'
         }, 'Emoticons'),
         tag('div', {
-          "class": '_emoticons',
+          "class": eb.contentClass,
           style: 'overflow: auto; padding: 5px 0; display: none;'
         }, '')
       )
     );
 
-    $('body').on('click', '#'+id+' ._emoticon', function(){
+    // Insert shortcut into message box when clicked.
+    $('body').on('click', '#' + id + ' .' + eb.itemClass, function(){
       var input = $('#message_input');
       input.focus();
       input.val(input.val()+' '+$(this).find('span').text());
     });
 
-    $('body').on('click', '#'+id+' ._toggle', function(){
+    $('body').on('click', '#' + id + ' .' + toggleClass, function(){
+      var $el = $(eb.contentSelector);
       // Refresh emoticons before opening.
-      if( $('#'+id+' ._emoticons').css('display') === 'none' ){
+      if( $el.css('display') === 'none' ){
         eb.refresh();
       }
-      $('#'+id+' ._emoticons').toggle();
+      $el.toggle();
     });
   };
 
@@ -119,7 +125,7 @@
     $.each(eb.sorted_emoticons(), function(i, e){ /*jslint unparam: true */
       var emote = tag('div',
         {
-          "class": '_emoticon',
+          "class": eb.itemClass,
           style: 'outline: 1px dotted #ccc; float: left; height: 40px; text-align: center; cursor:pointer; margin: 2px;',
           // Put shortcut text in title like the real ones (in case our font is too small).
           title: e.shortcut
