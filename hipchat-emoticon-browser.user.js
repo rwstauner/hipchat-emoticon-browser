@@ -3,7 +3,7 @@
 // @namespace      http://magnificent-tears.com
 // @include        https://*.hipchat.com/chat*
 // @updateURL      https://raw.github.com/rwstauner/hipchat-emoticon-browser/master/hipchat-emoticon-browser.user.js
-// @version        10
+// @version        11
 // ==/UserScript==
 
 (function(){
@@ -38,7 +38,7 @@
     tag = function (name, att) {
       var html = ['<' + name], content = _slice.call(arguments, 2);
       if(att){ html.push(stringifyAttributes(att)); }
-      html.push(content.length ? ('>' + content.join("\n") + "\n</" + name + '>') : '/>');
+      html.push(content.length ? ('>' + content.join("\n") + "</" + name + '>') : '/>');
       return html.join(' ');
     };
 
