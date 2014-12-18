@@ -37,8 +37,12 @@
 
     tag = function (name, att) {
       var html = ['<' + name], content = _slice.call(arguments, 2);
-      if(att){ html.push(stringifyAttributes(att)); }
-      html.push(content.length ? ('>' + content.join("\n") + "</" + name + '>') : '/>');
+      if( att ){
+        html.push( stringifyAttributes(att) );
+      }
+      html.push(
+        content.length ? ('>' + content.join("\n") + "</" + name + '>') : '/>'
+      );
       return html.join(' ');
     };
 
@@ -54,14 +58,16 @@
     $('body').append(
       tag('div',
         {
-          id: eb.id,
+          id: id,
           // Set z-index between the tab "X" (10) and the change-status text box (100).
           style: 'width: 175px; position: absolute; left: 2px; bottom: 40px; background: #eef; z-index: 50;'
         },
+
         tag('div', {
           "class": toggleClass,
           style: 'height: 1.5em; background: #aab; border-bottom: #778;text-align: center; cursor:pointer;'
         }, 'Emoticons'),
+
         tag('div', {
           "class": eb.contentClass,
           style: 'overflow: auto; padding: 5px 0; display: none;'
@@ -73,17 +79,20 @@
     $('body').on('click', '#' + id + ' .' + eb.itemClass, function(){
       var input = $('#message_input');
       input.focus();
-      input.val(input.val()+' '+$(this).find('span').text());
+      input.val( input.val() + ' ' + $(this).find('span').text() );
     });
 
     $('body').on('click', '#' + id + ' .' + toggleClass, function(){
       var $el = $(eb.contentSelector);
+
       // Refresh emoticons before opening.
       if( $el.css('display') === 'none' ){
         eb.refresh();
       }
+
       $el.toggle();
     });
+
   };
 
   eb.sorted_emoticons = function() {
@@ -148,6 +157,7 @@
           // Put shortcut text in title like the real ones (in case our font is too small).
           title: e.shortcut
         },
+
         tag('img', {
           // replaceImageWithRetina requires the name="emoticon" attribute.
           name: 'emoticon',
@@ -156,7 +166,9 @@
           height: e.height,
           width:  e.width
         }),
+
         tag('br'),
+
         tag('span', {
           // Shrink font so the items aren't too terribly large.
           style: "color: #555; font-size: 0.5em;"
