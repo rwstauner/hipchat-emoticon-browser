@@ -3,7 +3,7 @@
 // @namespace      http://magnificent-tears.com
 // @include        https://*.hipchat.com/chat*
 // @updateURL      https://raw.github.com/rwstauner/hipchat-emoticon-browser/master/hipchat-emoticon-browser.user.js
-// @version        11
+// @version        12
 // ==/UserScript==
 
 (function(){
@@ -88,6 +88,11 @@
       // Refresh emoticons before opening.
       if( $el.css('display') === 'none' ){
         eb.refresh();
+
+        // Readjust the height everytime we open it.
+        // This should be automatic (percentage doesn't work but we could
+        // consider doing onresize).
+        $el.height( $('body').height() - 80 );
       }
 
       $el.toggle();
@@ -178,8 +183,7 @@
     });
 
     innerhtml.push('<div style="clear:both;"></div>');
-    container.empty();
-    container.append(innerhtml.join("\n")).height($('body').height()-80);
+    container.html( innerhtml.join("\n") );
 
     // Use HipChat's own "upgrade to Retina" function if it's accessible.
     try {
