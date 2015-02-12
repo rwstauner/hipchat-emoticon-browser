@@ -3,13 +3,15 @@
 // @namespace      http://magnificent-tears.com
 // @include        https://*.hipchat.com/chat*
 // @updateURL      https://raw.github.com/rwstauner/hipchat-emoticon-browser/master/hipchat-emoticon-browser.user.js
-// @version        12
+// @version        13
 // ==/UserScript==
 
 (function(){
-  /*global $, document, config, emoticons*/
+  /*global $, document, config, emoticons, HC*/
 
   // HipChat includes jQuery 1.8.3 and we're not shy about using it.
+
+  // TODO: add special case for (scumbag)(allthethings)
 
   var eb = {
       interval: null,
@@ -20,6 +22,20 @@
     },
 
     // Helper functions.
+
+    _first = function() {
+      var res, i;
+      for(i = 0; i < arguments.length; ++i){
+        try {
+          res = arguments[i](this);
+        }
+        catch(ignore){}
+        if(res){
+          break;
+        }
+      }
+      return res;
+    },
 
     _keys = function (obj) {
       var k, list = [];
@@ -48,7 +64,31 @@
 
   eb.contentSelector = '#' + eb.id + ' .' + eb.contentClass;
 
+  eb.append_message_input = function(msg) {
+    var input = $('#message_input');
+    if(!input.length){
+      input = $('#hc-message-input');
+    }
+    msg = input.val() + ' ' + msg;
+
+    try {
+      HC.Actions.ChatInputActions.setMsgValue({text: msg});
+    }
+    catch(x) {
+      input.val( msg );
+    }
+
+    input.focus();
+  };
+
   eb.prepare = function(){
+    try {
+      eb._prepare();
+    }
+    catch(ignore){}
+  };
+
+  eb._prepare = function(){
     clearInterval(eb.interval);
 
     var toggleClass = '_toggle',
@@ -77,9 +117,7 @@
 
     // Insert shortcut into message box when clicked.
     $('body').on('click', '#' + id + ' .' + eb.itemClass, function(){
-      var input = $('#message_input');
-      input.focus();
-      input.val( input.val() + ' ' + $(this).find('span').text() );
+      eb.append_message_input( $(this).find('span').text() );
     });
 
     $('body').on('click', '#' + id + ' .' + toggleClass, function(){
@@ -102,7 +140,15 @@
 
   eb.sorted_emoticons = function() {
     // HipChat has changed the structure of their emoticon objects a few times.
-    var icons = (emoticons.emoticons || config.emoticons);
+    var icons = _first(
+      function(){ return HC.Utils.emoticons.emoticons; },
+      function(){ return emoticons.emoticons; },
+      function(){ return config.emoticons; }
+    );
+
+    if(!icons){
+      return [];
+    }
 
     // If it's not an array, assume it's an object and turn it into an array.
     if( !icons.sort ){
@@ -137,12 +183,24 @@
     return $.map(icons, function(icon) { return stringifyAttributes(icon); }).join("\n");
   };
 
+  eb.image_src = function (e) {
+    var config;
+    if(!eb.path_prefix){
+      try { config = HC.Utils.emoticons; }
+      catch(x) { config = emoticons; }
+      eb.path_prefix = config.path_prefix;
+    }
+    return (eb.path_prefix + '/' + (e.image || e.file));
+  };
+
   eb.refresh = function () {
     var
       container,
       icons = eb.sorted_emoticons(),
       iconString = eb.stringify_icons(icons),
       innerhtml = [];
+
+    // TODO: if !icons.length show message (report issue?)
 
     // If the icons haven't changed we don't need to do anything.
     if( iconString === eb.iconString ){
@@ -166,7 +224,7 @@
         tag('img', {
           // replaceImageWithRetina requires the name="emoticon" attribute.
           name: 'emoticon',
-          src: (emoticons.path_prefix + '/' + (e.image || e.file)),
+          src: eb.image_src(e),
           // Set the height and width so retina images don't get huge.
           height: e.height,
           width:  e.width
@@ -195,9 +253,15 @@
 
   eb.interval = setInterval(function(){
     // Wait for Hipchat to finish loading before trying to get emoticons
-    if($('#loading').css('display') === 'none') {
+    if(
+      // Old UI had loading image.
+      $('#loading').css('display') === 'none' ||
+      // New UI rebuilds DOM and #hipchat div will be there.
+      $('#hipchat').length === 1
+    ) {
       $(document).ready(function(){
         eb.prepare();
+        console.eb = eb; // FIXME
       });
     }
   }, 500);
