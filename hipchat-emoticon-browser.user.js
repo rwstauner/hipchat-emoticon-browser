@@ -115,12 +115,14 @@
       )
     );
 
-    // Insert shortcut into message box when clicked.
-    $('body').on('click', '#' + id + ' .' + eb.itemClass, function(){
-      eb.append_message_input( $(this).find('span').text() );
-    });
+  $('#' + id).
 
-    $('body').on('click', '#' + id + ' .' + toggleClass, function(){
+    // Insert shortcut into message box when clicked.
+    on('click', '.' + eb.itemClass, function(){
+      eb.append_message_input( $(this).find('span').text() );
+    }).
+
+    on('click', '.' + toggleClass, function(){
       var $el = $(eb.contentSelector);
 
       // Refresh emoticons before opening.
