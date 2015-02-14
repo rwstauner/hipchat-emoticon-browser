@@ -26,6 +26,15 @@
 
     // Helper functions.
   var
+    _htmlEscape = function (s) {
+      return s.toString().
+        replace(/&/g, '&amp;').
+        replace(/</g, '&lt;').
+        replace(/"/g, '&quot;').
+        replace(/'/g, '&#39;').
+        replace(/>/g, '&gt;');
+    },
+
     _keys = function (obj) {
       var k, list = [];
       for(k in obj){ if(obj.hasOwnProperty(k)){ list.push(k); } }
@@ -295,7 +304,7 @@ $.extend(EmoticonBrowser.prototype, {
       {
         style: 'font-size: 0.9em; text-align: center;',
       },
-      'Unable to load emoticons: <i>' + x + '</i>'
+      'Unable to load emoticons: <i>' + _htmlEscape(x) + '</i>'
     ));
   }
 
