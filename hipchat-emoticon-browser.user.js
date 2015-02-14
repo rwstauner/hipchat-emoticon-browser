@@ -3,7 +3,7 @@
 // @namespace      http://magnificent-tears.com
 // @include        https://*.hipchat.com/chat*
 // @updateURL      https://raw.github.com/rwstauner/hipchat-emoticon-browser/master/hipchat-emoticon-browser.user.js
-// @version        13
+// @version        14
 // ==/UserScript==
 
 (function(){
@@ -13,36 +13,24 @@
 
   // TODO: add special case for (scumbag)(allthethings)
 
-  var eb = {
+  function EmoticonBrowser() {
+    $.extend(this, {
       interval: null,
       iconString: '',
       id: '_local_emoticon_browser',
       contentClass: '_emoticons',
       itemClass:    '_emoticon'
-    },
+    });
+    this.contentSelector = '#' + this.id + ' .' + this.contentClass;
+  }
 
     // Helper functions.
-
-    _first = function() {
-      var res, i;
-      for(i = 0; i < arguments.length; ++i){
-        try {
-          res = arguments[i](this);
-        }
-        catch(ignore){}
-        if(res){
-          break;
-        }
-      }
-      return res;
-    },
-
+  var
     _keys = function (obj) {
       var k, list = [];
       for(k in obj){ if(obj.hasOwnProperty(k)){ list.push(k); } }
       return list.sort();
     },
-
     _slice = [].slice,
 
     stringifyAttributes = function (att) {
@@ -62,34 +50,91 @@
       return html.join(' ');
     };
 
-  eb.contentSelector = '#' + eb.id + ' .' + eb.contentClass;
-
-  eb.append_message_input = function(msg) {
-    var input = $('#message_input');
-    if(!input.length){
-      input = $('#hc-message-input');
+  EmoticonBrowser.Adapters = [
+    // New AUI (Atlassian UI) (in preview 2015).
+    {
+      active: function () {
+        return typeof HC !== 'undefined';
+      },
+      emoticons: function(){
+        return HC.Utils.emoticons.emoticons;
+      },
+      messageInput: '#hc-message-input',
+      appendMessageInput: function (msg) {
+        HC.Actions.ChatInputActions.setMsgValue({text: msg});
+      },
+      pathPrefix: function () {
+        return HC.Utils.emoticons.path_prefix;
+      },
+      ready: function () {
+        // After DOM is rebuilt by React #hipchat div will be there.
+        return $('#hipchat').length === 1;
+      }
+    },
+    // 2014 HipChat UI
+    {
+      active: function () {
+        return true; // be lazy and assume.
+      },
+      emoticons: function () {
+        return (emoticons.emoticons || config.emoticons);
+      },
+      messageInput: '#message_input',
+      appendMessageInput: function (msg) {
+        $(this.messageInput).val(msg);
+      },
+      pathPrefix: function () {
+        return emoticons.path_prefix;
+      },
+      ready: function () {
+        // Spinner
+        return $('#loading').css('display') === 'none';
+      }
     }
+  ];
+
+$.extend(EmoticonBrowser.prototype, {
+
+  eachAdapter: function (cb) {
+    var $this = this;
+    return $.each(EmoticonBrowser.Adapters, function(i, adapter){ /*jslint unparam: true*/
+      return cb.call($this, adapter);
+    });
+  },
+
+  setAdapter: function () {
+    this.adapter = null;
+    this.eachAdapter(function (adapter) {
+      if( adapter.active() ){
+        this.adapter = adapter;
+        return false; // break
+      }
+    });
+    if( !this.adapter ){
+      throw new Error('Unrecognized HipChat Interface');
+    }
+  },
+
+  appendMessageInput: function(msg) {
+    var input = $(this.adapter.messageInput);
     msg = input.val() + ' ' + msg;
-
-    try {
-      HC.Actions.ChatInputActions.setMsgValue({text: msg});
-    }
-    catch(x) {
-      input.val( msg );
-    }
-
+    this.adapter.appendMessageInput(msg);
     input.focus();
-  };
+  },
 
-  eb.prepare = function(){
+  prepare: function() {
     try {
-      eb._prepare();
+      this._prepare();
     }
     catch(ignore){}
-  };
+  },
 
-  eb._prepare = function(){
+  _prepare: function() {
+    var eb = this;
     clearInterval(eb.interval);
+
+    // The "ready" check may not be entirely indicative of which adapter to use.
+    this.setAdapter();
 
     var toggleClass = '_toggle',
       id = eb.id;
@@ -119,7 +164,7 @@
 
     // Insert shortcut into message box when clicked.
     on('click', '.' + eb.itemClass, function(){
-      eb.append_message_input( $(this).find('span').text() );
+      eb.appendMessageInput( $(this).find('span').text() );
     }).
 
     on('click', '.' + toggleClass, function(){
@@ -138,18 +183,14 @@
       $el.toggle();
     });
 
-  };
+  },
 
-  eb.sorted_emoticons = function() {
+  sortedEmoticons: function() {
     // HipChat has changed the structure of their emoticon objects a few times.
-    var icons = _first(
-      function(){ return HC.Utils.emoticons.emoticons; },
-      function(){ return emoticons.emoticons; },
-      function(){ return config.emoticons; }
-    );
+    var icons = this.adapter.emoticons();
 
-    if(!icons){
-      return [];
+    if( !icons ){
+      throw new Error('None found');
     }
 
     // If it's not an array, assume it's an object and turn it into an array.
@@ -165,6 +206,10 @@
       }(icons));
     }
 
+    if( !icons.length ){
+      throw new Error('None found');
+    }
+
     $.each(icons, function(i, icon){ /*jslint unparam: true */
 
       // The "slant" smiley is missing the trailing backslash in the `shortcut`
@@ -178,31 +223,36 @@
     return icons.sort(function(a,b){
       return a.shortcut.localeCompare(b.shortcut);
     });
-  };
+  },
 
-  eb.stringify_icons = function(icons) {
+  stringifyIcons: function(icons) {
     // We need object attributes sorted so that strings are comparable.
     return $.map(icons, function(icon) { return stringifyAttributes(icon); }).join("\n");
-  };
+  },
 
-  eb.image_src = function (e) {
-    var config;
+  imageUrl: function (e) {
+    var eb = this;
     if(!eb.path_prefix){
-      try { config = HC.Utils.emoticons; }
-      catch(x) { config = emoticons; }
-      eb.path_prefix = config.path_prefix;
+      eb.path_prefix = this.adapter.pathPrefix();
     }
     return (eb.path_prefix + '/' + (e.image || e.file));
-  };
+  },
 
-  eb.refresh = function () {
+  refresh: function () {
     var
+      eb = this,
       container,
-      icons = eb.sorted_emoticons(),
-      iconString = eb.stringify_icons(icons),
+      icons, iconString,
       innerhtml = [];
 
-    // TODO: if !icons.length show message (report issue?)
+  try {
+    // Try again if we don't have one.
+    if( !this.adapter ){
+      this.setAdapter();
+    }
+
+    icons      = this.sortedEmoticons();
+    iconString = this.stringifyIcons(icons);
 
     // If the icons haven't changed we don't need to do anything.
     if( iconString === eb.iconString ){
@@ -212,10 +262,8 @@
     // Save it so we can check it next time.
     eb.iconString = iconString;
 
-    container = $(eb.contentSelector);
-
     $.each(icons, function(i, e){ /*jslint unparam: true */
-      var emote = tag('div',
+      innerhtml.push(tag('div',
         {
           "class": eb.itemClass,
           style: 'outline: 1px dotted #ccc; float: left; height: 40px; text-align: center; cursor:pointer; margin: 2px;',
@@ -226,7 +274,7 @@
         tag('img', {
           // replaceImageWithRetina requires the name="emoticon" attribute.
           name: 'emoticon',
-          src: eb.image_src(e),
+          src: this.imageUrl(e),
           // Set the height and width so retina images don't get huge.
           height: e.height,
           width:  e.width
@@ -238,11 +286,21 @@
           // Shrink font so the items aren't too terribly large.
           style: "color: #555; font-size: 0.5em;"
         }, e.shortcut)
-      );
-      innerhtml.push(emote);
-    });
+      ));
+    }.bind(this));
+  }
+  catch(x) {
+    // Escape in case an error occurs with an unexpected message.
+    innerhtml.push(tag('div',
+      {
+        style: 'font-size: 0.9em; text-align: center;',
+      },
+      'Unable to load emoticons: <i>' + x + '</i>'
+    ));
+  }
 
     innerhtml.push('<div style="clear:both;"></div>');
+    container = $(this.contentSelector);
     container.html( innerhtml.join("\n") );
 
     // Use HipChat's own "upgrade to Retina" function if it's accessible.
@@ -251,21 +309,23 @@
       chat.replaceImageWithRetina(container);
     } catch(ignore) { }
 
-  };
+  },
 
-  eb.interval = setInterval(function(){
-    // Wait for Hipchat to finish loading before trying to get emoticons
-    if(
-      // Old UI had loading image.
-      $('#loading').css('display') === 'none' ||
-      // New UI rebuilds DOM and #hipchat div will be there.
-      $('#hipchat').length === 1
-    ) {
-      $(document).ready(function(){
-        eb.prepare();
-        console.eb = eb; // FIXME
+  init: function () {
+    this.interval = setInterval(function(){
+      // Wait for Hipchat to finish loading before trying to get emoticons
+      this.eachAdapter(function(hipchat){
+        if( hipchat.ready() ){
+          this.prepare();
+          return false; // break
+        }
       });
-    }
-  }, 500);
+    }.bind(this), 500);
+  }
+});
+
+  var eb = new EmoticonBrowser();
+  console.eb = eb; // FIXME
+  eb.init();
 
 }());
