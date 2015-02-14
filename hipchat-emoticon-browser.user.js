@@ -179,13 +179,28 @@ $.extend(EmoticonBrowser.prototype, {
       tag('div',
         {
           id: id,
-          // Set z-index between the tab "X" (10) and the change-status text box (100).
-          style: 'width: 175px; position: absolute; left: 2px; bottom: 40px; background: #eef; z-index: 50;'
+          style: stringifyCSS({
+            background: '#eef',
+            bottom:     '40px',
+            left:       '2px',
+            position:   'absolute',
+            width:      '175px',
+            // Set z-index between the tab "X" (10) and the change-status text box (100).
+            zIndex:     50
+          }, this.adapter.containerStyle)
         },
 
+        // TODO: Add Toggle to bottom (when open).
         tag('div', {
           "class": toggleClass,
-          style: 'height: 1.5em; background: #aab; border-bottom: #778;text-align: center; cursor:pointer;'
+          style: stringifyCSS({
+            background:   '#aab',
+            borderBottom: '#778',
+            cursor:       'pointer',
+            height:       '1.5em',
+            lineHeight:   '1.5em',
+            textAlign:    'center'
+          }, this.adapter.toggleStyle)
         }, 'Emoticons'),
 
         tag('div', {
@@ -301,7 +316,14 @@ $.extend(EmoticonBrowser.prototype, {
       innerhtml.push(tag('div',
         {
           "class": eb.itemClass,
-          style: 'outline: 1px dotted #ccc; float: left; height: 40px; text-align: center; cursor:pointer; margin: 2px;',
+          style: stringifyCSS({
+            cursor:     'pointer',
+            "float":    'left',
+            height:     '40px',
+            margin:     '2px',
+            outline:    '1px dotted #ccc',
+            textAlign:  'center'
+          }, this.adapter.itemStyle),
           // Put shortcut text in title like the real ones (in case our font is too small).
           title: e.shortcut
         },
