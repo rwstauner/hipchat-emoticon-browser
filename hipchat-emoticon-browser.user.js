@@ -41,11 +41,34 @@
       return list.sort();
     },
     _slice = [].slice,
+    _identity = function (val) { return val; },
 
-    stringifyAttributes = function (att) {
+    stringifyAttributes = function (att, opts) {
+      opts = $.extend({
+        assign: '="',
+        suffix: '"',
+        htmlEscape: false,
+        keyTransform: _identity,
+      }, opts || {});
       return $.map( _keys(att), function(key){
-        return key + '="' + att[key] + '"';
+        var val = att[key];
+        return opts.keyTransform(key) + opts.assign + val + opts.suffix;
       }).join(' ');
+    },
+
+    _jsToCSS = function (k) {
+      return k.replace(/([a-z])([A-Z])/g,
+        function() { return RegExp.$1 + '-' + RegExp.$2.toLowerCase(); });
+    },
+    stringifyCSS = function () {
+      return stringifyAttributes(
+        $.extend.apply($, $.map(arguments, function(a){ return a || {}; })),
+        {
+          assign: ': ',
+          suffix: '; ',
+          keyTransform: _jsToCSS
+        }
+      );
     },
 
     tag = function (name, att) {
