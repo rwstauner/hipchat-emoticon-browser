@@ -91,6 +91,13 @@
       active: function () {
         return typeof HC !== 'undefined';
       },
+      containerStyle: {
+        background: '#eef',
+        bottom:     0,
+        left:       0,
+        lineHeight: '1em', // override parent
+        width:      '219px'
+      },
       emoticons: function(){
         return HC.Utils.emoticons.emoticons;
       },
@@ -100,6 +107,10 @@
       },
       pathPrefix: function () {
         return HC.Utils.emoticons.path_prefix;
+      },
+      toggleStyle: {
+        background: '#205081',
+        color: '#fff'
       },
       ready: function () {
         // After DOM is rebuilt by React #hipchat div will be there.
