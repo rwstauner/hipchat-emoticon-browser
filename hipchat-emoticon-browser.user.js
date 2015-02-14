@@ -52,6 +52,9 @@
       }, opts || {});
       return $.map( _keys(att), function(key){
         var val = att[key];
+        if( opts.htmlEscape ){
+          val = _htmlEscape(val);
+        }
         return opts.keyTransform(key) + opts.assign + val + opts.suffix;
       }).join(' ');
     },
@@ -74,7 +77,7 @@
     tag = function (name, att) {
       var html = ['<' + name], content = _slice.call(arguments, 2);
       if( att ){
-        html.push( stringifyAttributes(att) );
+        html.push( stringifyAttributes(att, {htmlEscape: true}) );
       }
       html.push(
         content.length ? ('>' + content.join("\n") + "</" + name + '>') : '/>'
