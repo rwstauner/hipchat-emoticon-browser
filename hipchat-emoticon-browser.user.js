@@ -3,15 +3,13 @@
 // @namespace      http://magnificent-tears.com
 // @include        https://*.hipchat.com/chat*
 // @updateURL      https://raw.github.com/rwstauner/hipchat-emoticon-browser/master/hipchat-emoticon-browser.user.js
-// @version        14
+// @version        15
 // ==/UserScript==
 
 (function(){
   /*global $, document, config, emoticons, HC*/
 
   // HipChat includes jQuery 1.8.3 and we're not shy about using it.
-
-  // TODO: add special case for (scumbag)(allthethings)
 
   function EmoticonBrowser() {
     $.extend(this, {
@@ -248,7 +246,9 @@ $.extend(EmoticonBrowser.prototype, {
 
   sortedEmoticons: function() {
     // HipChat has changed the structure of their emoticon objects a few times.
-    var icons = this.adapter.emoticons();
+    var
+      bonus = {},
+      icons = this.adapter.emoticons();
 
     if( !icons ){
       throw new Error('None found');
@@ -279,11 +279,23 @@ $.extend(EmoticonBrowser.prototype, {
         icon.shortcut = ":\\";
       }
 
+      if( icon.shortcut === "(scumbag)" ){
+        // clone
+        bonus.scumbag = $.extend({}, icon, {shortcut: '(scumbag)(allthethings)'});
+      }
+
     });
 
-    return icons.sort(function(a,b){
+    icons = icons.sort(function(a,b){
       return a.shortcut.localeCompare(b.shortcut);
     });
+
+    // Put bonus emoticons at the end (but in a reliable order).
+    $.each(_keys(bonus).sort(), function(i, key){ /*jslint unparam: true */
+      icons.push(bonus[key]);
+    });
+
+    return icons;
   },
 
   stringifyIcons: function(icons) {
