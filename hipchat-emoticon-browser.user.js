@@ -46,6 +46,9 @@
       }, opts || {});
       return $.map( _keys(att), function(key){
         var val = att[key];
+        if( val === null || val === undefined ){
+          val = '';
+        }
         if( opts.htmlEscape ){
           val = _htmlEscape(val);
         }
