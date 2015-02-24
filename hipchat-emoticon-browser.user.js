@@ -263,6 +263,7 @@ $.extend(EmoticonBrowser.prototype, {
           // Put another toggle button at the bottom.
           this.toggleHTML({
             bottom: '0',
+            left: 0,
             position: 'absolute',
             width: '100%'
           })
