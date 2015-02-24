@@ -15,6 +15,7 @@
     $.extend(this, {
       interval: null,
       iconString: '',
+      settings: {}
     });
   }
 
@@ -141,7 +142,9 @@ $.extend(EmoticonBrowser.prototype, {
   id: '_local_emoticon_browser',
   classes: {
     content:    '_content',
+    emoticons:  '_emoticons',
     item:       '_emoticon',
+    settings:   '_settings',
     toggle:     '_toggle'
   },
 
@@ -226,10 +229,21 @@ $.extend(EmoticonBrowser.prototype, {
           }, this.adapter.toggleStyle)
         }, 'Emoticons'),
 
-        tag('div', {
-          "class": this.classes.content,
-          style: 'overflow: auto; padding: 5px 0; display: none;'
-        }, '')
+        tag('div',
+          {
+            "class": this.classes.content,
+            style: stringifyCSS({
+              display:  'none',
+              overflow: 'hidden',
+              padding:  '0 1px'
+            })
+          },
+          this.settingsHTML(),
+
+          tag('div', {
+            "class": this.classes.emoticons,
+            style: 'height: 94%; overflow: auto;'
+          }, ''),
       )
     );
 
@@ -258,6 +272,25 @@ $.extend(EmoticonBrowser.prototype, {
 
   },
 
+  settingsHTML: function() {
+    return tag('div',
+      {
+      },
+      tag('ul',
+        {
+          "class": this.classes.settings,
+          style: stringifyCSS({
+            borderBottom: '1px solid #ddd',
+            margin:  '1px 0',
+            padding: 0,
+            listStyle: 'none'
+          })
+        },
+
+
+      )
+    );
+  },
   sortedEmoticons: function() {
     // HipChat has changed the structure of their emoticon objects a few times.
     var
@@ -394,7 +427,7 @@ $.extend(EmoticonBrowser.prototype, {
   }
 
     innerhtml.push('<div style="clear:both;"></div>');
-    container = this.el('content');
+    container = this.el('emoticons');
     container.html( innerhtml.join("\n") );
 
     // Use HipChat's own "upgrade to Retina" function if it's accessible.
