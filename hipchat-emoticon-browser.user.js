@@ -3,7 +3,7 @@
 // @namespace      http://magnificent-tears.com
 // @include        https://*.hipchat.com/chat*
 // @updateURL      https://raw.github.com/rwstauner/hipchat-emoticon-browser/master/hipchat-emoticon-browser.user.js
-// @version        15
+// @version        16
 // ==/UserScript==
 
 (function(){
