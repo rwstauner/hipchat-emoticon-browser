@@ -62,8 +62,17 @@
         function() { return RegExp.$1 + '-' + RegExp.$2.toLowerCase(); });
     },
     stringifyCSS = function () {
+      var i, css = {};
+      // Loop and extend individually as extend/map doesn't seem to work
+      // expectedly when there is only one argument/element.
+      for(i=0; i<arguments.length; ++i){
+        // Skip any null arguments.
+        if( arguments[i] ){
+          $.extend(css, arguments[i]);
+        }
+      }
       return stringifyAttributes(
-        $.extend.apply($, $.map(arguments, function(a){ return a || {}; })),
+        css,
         {
           assign: ': ',
           suffix: '; ',
