@@ -180,7 +180,11 @@ $.extend(EmoticonBrowser.prototype, {
     try {
       this._prepare();
     }
-    catch(ignore){}
+    catch(x){
+      try {
+        console.log(x);
+      } catch(ignore) {}
+    }
   },
 
   _prepare: function() {
