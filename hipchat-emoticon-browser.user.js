@@ -234,18 +234,7 @@ $.extend(EmoticonBrowser.prototype, {
           }, this.adapter.containerStyle)
         },
 
-        // TODO: Add Toggle to bottom (when open).
-        tag('div', {
-          "class": this.classes.toggle,
-          style: stringifyCSS({
-            background:   '#aab',
-            borderBottom: '#778',
-            cursor:       'pointer',
-            height:       '1.5em',
-            lineHeight:   '1.5em',
-            textAlign:    'center'
-          }, this.adapter.toggleStyle)
-        }, 'Emoticons'),
+        this.toggleHTML(),
 
         tag('div',
           {
@@ -262,6 +251,14 @@ $.extend(EmoticonBrowser.prototype, {
             "class": this.classes.emoticons,
             style: 'height: 94%; overflow: auto;'
           }, ''),
+
+          // Put another toggle button at the bottom.
+          this.toggleHTML({
+            bottom: '0',
+            position: 'absolute',
+            width: '100%'
+          })
+        )
       )
     );
 
@@ -325,6 +322,24 @@ $.extend(EmoticonBrowser.prototype, {
       )
     );
   },
+
+  toggleHTML: function (css) {
+    return tag('div',
+      {
+        "class": this.classes.toggle,
+        style: stringifyCSS({
+          background:   '#aab',
+          borderBottom: '#778',
+          cursor:       'pointer',
+          height:       '1.5em',
+          lineHeight:   '1.5em',
+          textAlign:    'center'
+        }, css, this.adapter.toggleStyle)
+      },
+      'Emoticons'
+    );
+  },
+
   sortedEmoticons: function() {
     // HipChat has changed the structure of their emoticon objects a few times.
     var
