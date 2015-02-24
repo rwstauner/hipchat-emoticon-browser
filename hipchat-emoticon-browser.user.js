@@ -15,11 +15,7 @@
     $.extend(this, {
       interval: null,
       iconString: '',
-      id: '_local_emoticon_browser',
-      contentClass: '_emoticons',
-      itemClass:    '_emoticon'
     });
-    this.contentSelector = '#' + this.id + ' .' + this.contentClass;
   }
 
     // Helper functions.
@@ -139,6 +135,17 @@
 
 $.extend(EmoticonBrowser.prototype, {
 
+  id: '_local_emoticon_browser',
+  classes: {
+    content:    '_content',
+    item:       '_emoticon',
+    toggle:     '_toggle'
+  },
+
+  el: function (child) {
+    return this.$el.find('.' + this.classes[child]);
+  },
+
   eachAdapter: function (cb) {
     var $this = this;
     return $.each(EmoticonBrowser.Adapters, function(i, adapter){ /*jslint unparam: true*/
@@ -180,7 +187,7 @@ $.extend(EmoticonBrowser.prototype, {
     // The "ready" check may not be entirely indicative of which adapter to use.
     this.setAdapter();
 
-    var toggleClass = '_toggle',
+    var
       id = eb.id;
 
     $('#' + id).remove(); // This may or may not already exist.
@@ -201,7 +208,7 @@ $.extend(EmoticonBrowser.prototype, {
 
         // TODO: Add Toggle to bottom (when open).
         tag('div', {
-          "class": toggleClass,
+          "class": this.classes.toggle,
           style: stringifyCSS({
             background:   '#aab',
             borderBottom: '#778',
@@ -213,21 +220,21 @@ $.extend(EmoticonBrowser.prototype, {
         }, 'Emoticons'),
 
         tag('div', {
-          "class": eb.contentClass,
+          "class": this.classes.content,
           style: 'overflow: auto; padding: 5px 0; display: none;'
         }, '')
       )
     );
 
-  $('#' + id).
+  this.$el = $('#' + id).
 
     // Insert shortcut into message box when clicked.
-    on('click', '.' + eb.itemClass, function(){
+    on('click', '.' + this.classes.item, function(){
       eb.appendMessageInput( $(this).find('span').text() );
     }).
 
-    on('click', '.' + toggleClass, function(){
-      var $el = $(eb.contentSelector);
+    on('click', '.' + this.classes.toggle, function(){
+      var $el = eb.el('content');
 
       // Refresh emoticons before opening.
       if( $el.css('display') === 'none' ){
@@ -338,7 +345,7 @@ $.extend(EmoticonBrowser.prototype, {
     $.each(icons, function(i, e){ /*jslint unparam: true */
       innerhtml.push(tag('div',
         {
-          "class": eb.itemClass,
+          "class": this.classes.item,
           style: stringifyCSS({
             cursor:     'pointer',
             "float":    'left',
@@ -380,7 +387,7 @@ $.extend(EmoticonBrowser.prototype, {
   }
 
     innerhtml.push('<div style="clear:both;"></div>');
-    container = $(this.contentSelector);
+    container = this.el('content');
     container.html( innerhtml.join("\n") );
 
     // Use HipChat's own "upgrade to Retina" function if it's accessible.
