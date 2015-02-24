@@ -153,6 +153,7 @@ $.extend(EmoticonBrowser.prototype, {
     content:    '_content',
     emoticons:  '_emoticons',
     item:       '_emoticon',
+    scumbagify: '_scumbagify',
     settings:   '_settings',
     toggle:     '_toggle'
   },
@@ -183,9 +184,17 @@ $.extend(EmoticonBrowser.prototype, {
 
   appendMessageInput: function(msg) {
     var input = $(this.adapter.messageInput);
-    msg = input.val() + ' ' + msg;
+    var val = input.val();
+    msg = (val.length ? val + ' ' : '') + this.modifyMessageInput(msg);
     this.adapter.appendMessageInput(msg);
     input.focus();
+  },
+
+  modifyMessageInput: function(msg) {
+    if( this.settings.scumbagify ){
+      msg = '(scumbag)' + msg;
+    }
+    return msg;
   },
 
   prepare: function() {
@@ -277,6 +286,10 @@ $.extend(EmoticonBrowser.prototype, {
       }
 
       $el.toggle();
+    }).
+
+    on('change', '.' + this.classes.scumbagify, function(){
+      eb.settings.scumbagify = this.checked;
     });
 
   },
@@ -296,6 +309,18 @@ $.extend(EmoticonBrowser.prototype, {
           })
         },
 
+        tag('li', {},
+          tag('label', {},
+            tag('input', $.extend(
+              {
+                type: "checkbox",
+                "class": this.classes.scumbagify,
+              },
+              this.settings.scumbagify ? {checked: 'checked'} : {}
+            )),
+            'Scumbagify'
+          )
+        )
 
       )
     );
@@ -333,11 +358,6 @@ $.extend(EmoticonBrowser.prototype, {
       // attribute (though it is present in `regex`).
       if( icon.shortcut === ":" && icon.file === "slant.png" ){
         icon.shortcut = ":\\";
-      }
-
-      if( icon.shortcut === "(scumbag)" ){
-        // clone
-        bonus.scumbag = $.extend({}, icon, {shortcut: '(scumbag)(allthethings)'});
       }
 
     });
