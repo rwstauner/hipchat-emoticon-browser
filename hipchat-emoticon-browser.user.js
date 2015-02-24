@@ -38,6 +38,14 @@
     _slice = [].slice,
     _identity = function (val) { return val; },
 
+    _sum = function () {
+      var i, s = 0;
+      for(i=0; i<arguments.length; ++i){
+        s += arguments[i];
+      }
+      return s;
+    },
+
     stringifyAttributes = function (att, opts) {
       opts = $.extend({
         assign: '="',
@@ -280,6 +288,14 @@ $.extend(EmoticonBrowser.prototype, {
         // This should be automatic (percentage doesn't work but we could
         // consider doing onresize).
         $el.height( $('body').height() - 80 );
+
+        eb.el('emoticons').css('height',
+          $el.height() - _sum(
+            0, // padding
+            eb.el('settings').height(),
+            eb.el('toggle').height() * 2
+          ) + 'px'
+        );
       }
 
       $el.toggle();
