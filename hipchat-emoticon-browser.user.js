@@ -3,7 +3,7 @@
 // @namespace      http://magnificent-tears.com
 // @include        https://*.hipchat.com/chat*
 // @updateURL      https://raw.github.com/rwstauner/hipchat-emoticon-browser/master/hipchat-emoticon-browser.user.js
-// @version        17
+// @version        18
 // ==/UserScript==
 
 (function(){
@@ -345,6 +345,9 @@ $.extend(EmoticonBrowser.prototype, {
       {
         "class": this.classes.toggle,
         style: stringifyCSS({
+          "-webkit-user-select": 'none',
+          "-moz-user-select":    'none',
+          "user-select":         'none',
           background:   '#aab',
           borderBottom: '#778',
           cursor:       'pointer',
