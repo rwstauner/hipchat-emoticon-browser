@@ -3,7 +3,7 @@
 // @namespace      http://magnificent-tears.com
 // @include        https://*.hipchat.com/chat*
 // @updateURL      https://raw.github.com/rwstauner/hipchat-emoticon-browser/master/hipchat-emoticon-browser.user.js
-// @version        18
+// @version        19
 // ==/UserScript==
 
 (function(){
@@ -44,6 +44,13 @@
         s += arguments[i];
       }
       return s;
+    },
+
+    _tryeach = function () {
+      var i;
+      for(i=0; i<arguments.length; ++i){
+        try { arguments[i](); } catch (ignore) { }
+      }
     },
 
     stringifyAttributes = function (att, opts) {
@@ -114,7 +121,14 @@
         width:      '219px'
       },
       emoticons: function(){
-        return HC.Utils.emoticons.emoticons;
+        var emoticons = {};
+        _tryeach(
+          // Smileys still seem to be in the old place (shrug).
+          function () { $.extend(emoticons, config.emoticons); },
+          // Main emoticons (put last to overwrite).
+          function () { $.extend(emoticons, HC.Utils.emoticons.emoticons); }
+        );
+        return emoticons;
       },
       messageInput: '#hc-message-input',
       appendMessageInput: function (msg) {
