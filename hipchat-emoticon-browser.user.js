@@ -3,7 +3,7 @@
 // @namespace      http://magnificent-tears.com
 // @include        https://*.hipchat.com/chat*
 // @updateURL      https://raw.github.com/rwstauner/hipchat-emoticon-browser/master/hipchat-emoticon-browser.user.js
-// @version        19
+// @version        20
 // ==/UserScript==
 
 (function(){
@@ -123,10 +123,12 @@
       emoticons: function(){
         var emoticons = {};
         _tryeach(
-          // Smileys still seem to be in the old place (shrug).
+          // Old place for smileys.
           function () { $.extend(emoticons, config.emoticons); },
+          // New place for smileys.
+          function () { $.extend(emoticons, HC.Emoticons.smileys); },
           // Main emoticons (put last to overwrite).
-          function () { $.extend(emoticons, HC.Utils.emoticons.emoticons); }
+          function () { $.extend(emoticons, HC.Emoticons.emoticons); }
         );
         return emoticons;
       },
