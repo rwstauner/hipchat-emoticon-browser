@@ -3,7 +3,7 @@
 // @namespace      http://magnificent-tears.com
 // @include        https://*.hipchat.com/chat*
 // @updateURL      https://raw.github.com/rwstauner/hipchat-emoticon-browser/master/hipchat-emoticon-browser.user.js
-// @version        20
+// @version        21
 // ==/UserScript==
 
 (function(){
@@ -137,7 +137,7 @@
         HC.Actions.ChatInputActions.setMsgValue({text: msg});
       },
       pathPrefix: function () {
-        return HC.Utils.emoticons.path_prefix;
+        return HC.Emoticons.path_prefix;
       },
       toggleStyle: {
         background: '#205081',
